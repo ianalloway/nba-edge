@@ -1,6 +1,10 @@
 # nba-edge
 
-**NBA betting edge finder.** Fetches live odds, applies ML-weighted power ratings, and surfaces value bets where your model beats the closing line.
+**Sports ML flagship (library + eval):** The maintained **`nba-edge`** Python **package** (Elo, logistic win prob, Kelly helpers — tests + CI) lives at **[ianalloway/nba-ratings](https://github.com/ianalloway/nba-ratings)** (same PyPI name `nba-edge`). Evaluation UI: **[nba-clv-dashboard](https://github.com/ianalloway/nba-clv-dashboard)**. Employer one-pager: [Sports ML case study](https://ianalloway.xyz/papers/sports-ml-evaluation-case-study.html).
+
+---
+
+**This repo (legacy CLI):** **NBA betting edge finder.** Fetches live odds, applies ML-weighted power ratings, and surfaces value bets where your model beats the closing line.
 
 [![Python](https://img.shields.io/badge/Python-3.11+-blue?style=for-the-badge&logo=python)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
