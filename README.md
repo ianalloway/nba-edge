@@ -1,16 +1,28 @@
 # nba-edge
 
-**Sports ML flagship (library + eval):** The maintained **`nba-edge`** Python **package** (Elo, logistic win prob, Kelly helpers — tests + CI) lives at **[ianalloway/nba-ratings](https://github.com/ianalloway/nba-ratings)** (same PyPI name `nba-edge`). Evaluation UI: **[nba-clv-dashboard](https://github.com/ianalloway/nba-clv-dashboard)**. Employer one-pager: [Sports ML case study](https://ianalloway.xyz/papers/sports-ml-evaluation-case-study.html).
-
----
-
-**This repo (legacy CLI):** **NBA betting edge finder.** Fetches live odds, applies ML-weighted power ratings, and surfaces value bets where your model beats the closing line.
+> **This repo is a legacy CLI demo.** The maintained library (Elo ratings,
+> logistic win probability, Kelly helpers — with tests and CI) lives at
+> **[ianalloway/nba-ratings](https://github.com/ianalloway/nba-ratings)**
+> (same PyPI name, `nba-edge`). Evaluation UI:
+> **[nba-clv-dashboard](https://github.com/ianalloway/nba-clv-dashboard)**.
+> Case study: [Sports ML evaluation](https://ianalloway.xyz/papers/sports-ml-evaluation-case-study.html).
+>
+> Go there for anything you'd actually depend on. What's left here is a
+> single-file CLI toy kept around for the demo output below.
 
 [![Python](https://img.shields.io/badge/Python-3.11+-blue?style=for-the-badge&logo=python)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
+## What this is
+
+A ~450-line, dependency-free `nba_edge.py` script: hardcoded sample power
+ratings, a sigmoid win-probability model, and a Kelly-sizing CLI that prints a
+sample slate of "edges." No live data by default — `--slate live` will call
+The Odds API if you pass a key, otherwise everything runs on the bundled
+sample slate.
+
 ```
-$ python nba_edge.py --slate tonight
+$ python nba_edge.py --slate sample
 
 🏀 NBA Edge Finder — Feb 25 2026
 ════════════════════════════════════════════════════════
@@ -25,110 +37,49 @@ Celtics vs Knicks       Celtics -4.5    -108    58.1%   53.1%   +5.0%   2.7%
 Recommended exposure (half-Kelly portfolio): 5.8% of bankroll
 ```
 
-## Features
-
-- Pulls live odds from multiple books and finds the best available line
-- Power ratings built from: net rating, pace, rest days, travel, home/away splits
-- Closing Line Value tracking — logs your model's CLV on every bet
-- Kelly Criterion sizing with portfolio normalization
-- Back-testing against historical closing lines (2022–present)
-
 ## Install
+
+No dependencies beyond the Python standard library — nothing to install.
 
 ```bash
 git clone https://github.com/ianalloway/nba-edge
 cd nba-edge
-pip install -r requirements.txt
+python nba_edge.py --slate sample
 ```
 
 ## Usage
 
 ```bash
-# Tonight's slate
-python nba_edge.py --slate tonight
-
-# Specific game
-python nba_edge.py --game "Thunder vs Grizzlies"
-
-# Filter by edge threshold
-python nba_edge.py --min-edge 5
-
-# Back-test the model on historical data
-python nba_edge.py --backtest --season 2024-25
-
-# Export results to CSV
-python nba_edge.py --slate tonight --export picks.csv
+python nba_edge.py --slate sample                 # bundled sample slate
+python nba_edge.py --slate live --api-key KEY      # The Odds API (or set ODDS_API_KEY)
+python nba_edge.py --min-edge 5                    # filter by edge threshold
+python nba_edge.py --slate sample --export picks.csv
+python nba_edge.py --backtest                      # prints illustrative demo numbers, NOT a real back-test
 ```
 
-## How the Model Works
+`--backtest` prints a fixed, made-up table to show the report shape — this
+repo doesn't ship historical closing-line data, so there's no real back-test
+to run. For an actual evaluation harness, see
+[nba-clv-dashboard](https://github.com/ianalloway/nba-clv-dashboard).
 
-### Power Ratings
+## How the demo model works
 
-Each team gets a composite power rating updated after every game:
-
-```
-PowerRating = (0.4 × NetRating_L15)
-            + (0.25 × OffRtg - DefRtg)
-            + (0.15 × PaceAdjustedNetRtg)
-            + (0.1 × HomeAdv)
-            + (0.1 × RestDaysAdj)
-```
-
-### Win Probability
+Fixed sample power ratings per team, combined with a sigmoid win-probability
+curve, compared against market-implied probability from the odds:
 
 ```
 WinProb = σ(PowerDiff × 0.028 + HomeAdv × 0.024)
+Edge    = WinProb_model − ImpliedProb_market
 ```
 
-Where σ is the sigmoid function. Calibrated against 5 years of closing lines.
+Only edges above `--min-edge` (default 3%) are shown, sized with half-Kelly
+and a 20% max portfolio exposure cap.
 
-### Edge Calculation
+## Tests
 
+```bash
+python -m pytest
 ```
-Edge = WinProb_model - ImpliedProb_market
-```
-
-Only bets with `Edge > 3%` are surfaced by default.
-
-### Kelly Sizing
-
-Uses half-Kelly with portfolio normalization (max 20% total exposure):
-
-```
-f* = (bp - q) / b
-Recommended = f*/2
-```
-
-## Back-test Results (2022–2025)
-
-| Season | Bets | Win% | ROI | Avg CLV |
-|--------|------|------|-----|---------|
-| 2022-23 | 312 | 55.4% | +6.2% | +1.8% |
-| 2023-24 | 289 | 54.7% | +5.1% | +1.4% |
-| 2024-25 | 301 | 56.1% | +7.3% | +2.1% |
-
-> Back-test uses closing lines as ground truth for CLV — no look-ahead bias.
-
-## Configuration
-
-```yaml
-# config.yaml
-model:
-  min_edge: 0.03        # minimum edge to surface a bet
-  kelly_fraction: 0.5   # 0.5 = half-Kelly
-  max_exposure: 0.20    # max portfolio exposure per slate
-
-filters:
-  min_minutes: 20       # exclude players with < N minutes
-  exclude_b2b: false    # exclude teams on back-to-backs
-  home_adv: 2.8         # home court advantage (points)
-```
-
-## Data Sources
-
-- **Odds**: The Odds API (free tier covers today's slate)
-- **Stats**: NBA Stats API (unofficial, no key needed)
-- **Injury reports**: RotoWire injury feed (manual check recommended)
 
 ## Author
 

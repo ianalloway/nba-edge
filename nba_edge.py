@@ -451,7 +451,10 @@ def main():
     print_header()
 
     if args.backtest:
-        print("\n📊 Back-test Summary (2022–2025)")
+        # NOTE: illustrative demo numbers, not a real measured back-test.
+        # This repo doesn't ship historical closing-line data to back-test
+        # against; treat this output as a sample report shape only.
+        print("\n📊 Back-test Summary (illustrative demo data, not measured)")
         print("─" * 50)
         results = [
             ("2022-23", 312, 0.554, 0.062, 0.018),
