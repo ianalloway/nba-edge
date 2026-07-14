@@ -1,53 +1,44 @@
 # Contributing to nba-edge
 
-Thanks for your interest in contributing! Here's how to get started.
+This repo is a legacy single-file CLI demo — the maintained library lives at
+[nba-ratings](https://github.com/ianalloway/nba-ratings). If you're looking to
+contribute real model/library improvements, go there instead. Small fixes to
+this demo CLI are still welcome here.
 
 ## Getting Started
 
 1. **Fork** this repo and create your branch from `main`
-2. Branch naming: `feat/your-feature`, `fix/your-bug`, or `docs/your-docs`
-3. Make your changes with clear, descriptive commits
-4. **Test** your changes locally before opening a PR
-5. Open a Pull Request — fill out the template and describe your changes
+2. Make your changes with clear, descriptive commits
+3. **Test** your changes locally before opening a PR (`python -m pytest`)
+4. Open a Pull Request describing what and why
 
 ## Development Setup
+
+Pure Python standard library — no dependencies, no `requirements.txt` needed.
 
 ```bash
 git clone https://github.com/ianalloway/nba-edge
 cd nba-edge
-npm install      # or: pip install -r requirements.txt
-npm run dev      # or: python main.py
+python nba_edge.py --slate sample
+python -m pytest
 ```
 
 ## Code Style
 
-- **TypeScript/JS**: ESLint + Prettier (config in repo). Run `npm run lint` before committing.
-- **Python**: Black + isort. Run `black . && isort .` before committing.
+- Python 3.11+, stdlib only. Don't add a runtime dependency without discussing it first.
 - Keep functions small and focused — one job per function.
 - Write self-documenting code; add comments only where logic is non-obvious.
 
 ## Pull Request Guidelines
 
-- Keep PRs focused — one feature or bug fix per PR
+- Keep PRs focused — one fix per PR
 - Include a clear description of **what** and **why**
 - Reference related issues with `Closes #123`
 - All CI checks must pass before merging
-- Be responsive to review feedback
 
 ## Reporting Bugs
 
-Use the [Bug Report template](.github/ISSUE_TEMPLATE/bug_report.md). Include:
-- Steps to reproduce
-- Expected vs actual behavior
-- Environment info (OS, Node/Python version)
-
-## Suggesting Features
-
-Use the [Feature Request template](.github/ISSUE_TEMPLATE/feature_request.md). Explain the problem it solves.
-
-## Code of Conduct
-
-Be respectful and constructive. Everyone is welcome here.
+Open an issue using the [Bug Report template](.github/ISSUE_TEMPLATE/bug_report.md) with steps to reproduce, expected vs actual behavior, and your Python version.
 
 ## License
 
